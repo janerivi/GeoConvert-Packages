@@ -1,0 +1,18 @@
+{
+  "name": "com.placeframe.geoconvert",
+  "version": "0.1.0-pre.1",
+  "displayName": "Placeframe GeoConvert",
+  "description": "Friendly double-precision geodetic, ECEF, ENU and OGC GeoPose APIs for Unity and C#.",
+  "unity": "2022.3",
+  "license": "Apache-2.0",
+  "keywords": [
+    "geospatial",
+    "wgs84",
+    "ecef",
+    "enu",
+    "geopose"
+  ],
+  "author": {
+    "name": "Placeframe"
+  }
+}

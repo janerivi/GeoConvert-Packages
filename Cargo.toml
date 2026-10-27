@@ -1,0 +1,3 @@
+[workspace]
+members = ["packages/rust/geoconvert"]
+resolver = "3"

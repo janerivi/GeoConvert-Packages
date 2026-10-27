@@ -1,0 +1,19 @@
+[package]
+name = "placeframe-geoconvert"
+version = "0.1.0-alpha.1"
+edition = "2024"
+rust-version = "1.85"
+description = "Friendly GeoConvert geodetic, ECEF, ENU and GeoPose APIs"
+license-file = "../../typescript/geoconvert/LICENSE"
+repository = "https://github.com/janerivi/GeoConvert-Packages"
+homepage = "https://github.com/janerivi/GeoConvert-Packages"
+readme = "README.md"
+keywords = ["geospatial", "wgs84", "ecef", "enu", "geopose"]
+categories = ["science::geo"]
+
+[lib]
+name = "placeframe_geoconvert"
+path = "src/lib.rs"
+
+[dependencies]
+

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://placeframe.dev/geoconvert/contracts/v1/conversion-request.schema.json",
+  "$ref": "geoconvert.schema.json#/$defs/ConversionRequest"
+}

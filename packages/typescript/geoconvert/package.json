@@ -1,0 +1,68 @@
+{
+  "name": "@placeframe/geoconvert",
+  "version": "0.1.0-alpha.2",
+  "description": "Friendly, typed GeoConvert APIs for Node.js and TypeScript",
+  "keywords": [
+    "geospatial",
+    "wgs84",
+    "ecef",
+    "enu",
+    "coordinates",
+    "typescript"
+  ],
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=22.23.4 <23 || >=24.22.1 <25"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janerivi/GeoConvert-Packages.git",
+    "directory": "packages/typescript/geoconvert"
+  },
+  "homepage": "https://github.com/janerivi/GeoConvert-Packages",
+  "bugs": {
+    "url": "https://github.com/janerivi/GeoConvert-Packages/issues"
+  },
+  "files": [
+    "dist",
+    "examples",
+    "LICENSE",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js",
+      "default": "./dist/node.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "generate": "node scripts/generate-contract-types.mjs",
+    "check:generated": "node scripts/generate-contract-types.mjs --check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "build": "npm run clean && tsc --project tsconfig.build.json",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "example:manhattan": "npm run build && node examples/manhattan.mjs",
+    "verify": "npm run check:generated && npm run format:check && npm run typecheck && npm test && node examples/manhattan.mjs",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "json-schema-to-typescript": "15.0.4",
+    "prettier": "3.6.2",
+    "typescript": "5.9.2"
+  }
+}

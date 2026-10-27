@@ -7,9 +7,13 @@ export {
   WGS84_ELLIPSOID,
   createLocalFrame,
   ecefToEnuRotation,
+  ecefToEnuRotationRadians,
   fromEcef,
   fromEcefDetailed,
+  fromEcefRadians,
+  fromEcefRadiansDetailed,
   toEcef,
+  toEcefRadians,
   transposeMatrix3,
 } from "./geodesy.js";
 export {
@@ -38,6 +42,8 @@ export type {
   Ellipsoid,
   GeodeticInverseResult,
   GeodeticPosition,
+  GeodeticRadiansInverseResult,
+  GeodeticRadiansPosition,
   LatLonHeight,
   LocalEnuPosition,
   LocalFrame,

@@ -16,7 +16,7 @@ Pin the release asset URL in `package.json`:
 ```json
 {
   "dependencies": {
-    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.2/placeframe-geoconvert-0.1.0-alpha.2.tgz"
+    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.3/placeframe-geoconvert-0.1.0-alpha.3.tgz"
   }
 }
 ```
@@ -113,6 +113,10 @@ wrapper for Placeframe camera poses.
 Latitude and longitude are degrees. ECEF and ENU components are metres. Height
 is explicitly ellipsoidal; the API does not silently interpret it as elevation
 above mean sea level.
+
+Advanced adapters with canonical radian inputs can use `toEcefRadians`,
+`fromEcefRadiansDetailed` and `ecefToEnuRotationRadians` without a degrees
+round trip.
 
 ## Authoritative CRS conversion from Node.js
 

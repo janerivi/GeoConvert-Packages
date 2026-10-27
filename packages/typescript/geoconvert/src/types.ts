@@ -5,6 +5,13 @@ export interface GeodeticPosition {
   readonly ellipsoidalHeight: number;
 }
 
+/** Advanced geodetic form for consumers whose canonical inputs are radians. */
+export interface GeodeticRadiansPosition {
+  readonly latitudeRadians: number;
+  readonly longitudeRadians: number;
+  readonly ellipsoidalHeight: number;
+}
+
 /** Earth-centred, Earth-fixed Cartesian position in metres. */
 export interface EcefPosition {
   readonly x: number;
@@ -45,6 +52,12 @@ export interface EcefInverseOptions {
 }
 
 export interface GeodeticInverseResult extends GeodeticPosition {
+  readonly algorithm: "bowring-iterative";
+  readonly iterations: number;
+  readonly toleranceRadians: number;
+}
+
+export interface GeodeticRadiansInverseResult extends GeodeticRadiansPosition {
   readonly algorithm: "bowring-iterative";
   readonly iterations: number;
   readonly toleranceRadians: number;

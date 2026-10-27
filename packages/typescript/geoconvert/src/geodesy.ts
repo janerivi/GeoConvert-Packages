@@ -5,6 +5,8 @@ import type {
   Ellipsoid,
   GeodeticInverseResult,
   GeodeticPosition,
+  GeodeticRadiansInverseResult,
+  GeodeticRadiansPosition,
   LocalEnuPosition,
   LocalFrame,
   LocalFrameOptions,
@@ -86,6 +88,27 @@ function geodeticRadians(position: GeodeticPosition): Vector3 {
   return [(latitude * Math.PI) / 180, (longitude * Math.PI) / 180, height];
 }
 
+function validatedRadianVector(position: GeodeticRadiansPosition): Vector3 {
+  const latitude = finite("latitudeRadians", position.latitudeRadians);
+  const longitude = finite("longitudeRadians", position.longitudeRadians);
+  const height = finite("ellipsoidalHeight", position.ellipsoidalHeight);
+  if (latitude < -Math.PI / 2 || latitude > Math.PI / 2) {
+    throw new GeoConvertInputError(
+      "out-of-range",
+      "latitudeRadians",
+      "must be between -pi/2 and pi/2",
+    );
+  }
+  if (longitude < -Math.PI || longitude > Math.PI) {
+    throw new GeoConvertInputError(
+      "out-of-range",
+      "longitudeRadians",
+      "must be between -pi and pi",
+    );
+  }
+  return [latitude, longitude, height];
+}
+
 function ecefVector(position: EcefPosition): Vector3 {
   return [
     finite("x", position.x),
@@ -132,7 +155,7 @@ export function transposeMatrix3(matrix: Matrix3): Matrix3 {
   ];
 }
 
-function ecefToEnuRotationRadians(
+function ecefToEnuRotationFromRadians(
   latitudeRadians: number,
   longitudeRadians: number,
 ): Matrix3 {
@@ -153,6 +176,19 @@ function ecefToEnuRotationRadians(
   ];
 }
 
+/** Advanced form for canonical inputs already represented in radians. */
+export function ecefToEnuRotationRadians(
+  latitudeRadians: number,
+  longitudeRadians: number,
+): Matrix3 {
+  const [latitude, longitude] = validatedRadianVector({
+    latitudeRadians,
+    longitudeRadians,
+    ellipsoidalHeight: 0,
+  });
+  return ecefToEnuRotationFromRadians(latitude, longitude);
+}
+
 /** Rows map an ECEF displacement to local east, north and ellipsoid-up. */
 export function ecefToEnuRotation(
   latitudeDegrees: number,
@@ -163,15 +199,14 @@ export function ecefToEnuRotation(
     longitude: longitudeDegrees,
     ellipsoidalHeight: 0,
   });
-  return ecefToEnuRotationRadians(latitude, longitude);
+  return ecefToEnuRotationFromRadians(latitude, longitude);
 }
 
-/** Convert geodetic degrees and ellipsoidal-height metres to ECEF metres. */
-export function toEcef(
-  position: GeodeticPosition,
+function toEcefFromRadians(
+  radians: Vector3,
   ellipsoid: Ellipsoid = WGS84_ELLIPSOID,
 ): EcefPosition {
-  const [latitude, longitude, height] = geodeticRadians(position);
+  const [latitude, longitude, height] = radians;
   const { eccentricitySquared } = ellipsoidTerms(ellipsoid);
   const sinLatitude = Math.sin(latitude);
   const cosLatitude = Math.cos(latitude);
@@ -186,11 +221,27 @@ export function toEcef(
   ]);
 }
 
+/** Convert geodetic degrees and ellipsoidal-height metres to ECEF metres. */
+export function toEcef(
+  position: GeodeticPosition,
+  ellipsoid: Ellipsoid = WGS84_ELLIPSOID,
+): EcefPosition {
+  return toEcefFromRadians(geodeticRadians(position), ellipsoid);
+}
+
+/** Advanced ECEF conversion that does not round-trip canonical radians through degrees. */
+export function toEcefRadians(
+  position: GeodeticRadiansPosition,
+  ellipsoid: Ellipsoid = WGS84_ELLIPSOID,
+): EcefPosition {
+  return toEcefFromRadians(validatedRadianVector(position), ellipsoid);
+}
+
 /** Convert ECEF metres and retain inverse-algorithm audit details. */
-export function fromEcefDetailed(
+export function fromEcefRadiansDetailed(
   position: EcefPosition,
   options: EcefInverseOptions = {},
-): GeodeticInverseResult {
+): GeodeticRadiansInverseResult {
   const ellipsoid = options.ellipsoid ?? WGS84_ELLIPSOID;
   const toleranceRadians =
     options.toleranceRadians ?? DEFAULT_TOLERANCE_RADIANS;
@@ -223,8 +274,8 @@ export function fromEcefDetailed(
       );
     }
     return Object.freeze({
-      latitude: z < 0 ? -90 : 90,
-      longitude: 0,
+      latitudeRadians: z < 0 ? -Math.PI / 2 : Math.PI / 2,
+      longitudeRadians: 0,
       ellipsoidalHeight: Math.abs(z) - semiMinorAxisM,
       algorithm: "bowring-iterative",
       iterations: 0,
@@ -271,12 +322,41 @@ export function fromEcefDetailed(
       : z / sinLatitude - primeVerticalRadius * (1 - eccentricitySquared);
 
   return Object.freeze({
-    latitude: (latitude * 180) / Math.PI,
-    longitude: (longitude * 180) / Math.PI,
+    latitudeRadians: latitude,
+    longitudeRadians: longitude,
     ellipsoidalHeight,
     algorithm: "bowring-iterative",
     iterations,
     toleranceRadians,
+  });
+}
+
+/** Convert ECEF metres and retain inverse-algorithm audit details. */
+export function fromEcefDetailed(
+  position: EcefPosition,
+  options: EcefInverseOptions = {},
+): GeodeticInverseResult {
+  const result = fromEcefRadiansDetailed(position, options);
+  return Object.freeze({
+    latitude: (result.latitudeRadians * 180) / Math.PI,
+    longitude: (result.longitudeRadians * 180) / Math.PI,
+    ellipsoidalHeight: result.ellipsoidalHeight,
+    algorithm: result.algorithm,
+    iterations: result.iterations,
+    toleranceRadians: result.toleranceRadians,
+  });
+}
+
+/** Advanced ECEF inverse for consumers whose canonical representation is radians. */
+export function fromEcefRadians(
+  position: EcefPosition,
+  options: EcefInverseOptions = {},
+): GeodeticRadiansPosition {
+  const result = fromEcefRadiansDetailed(position, options);
+  return Object.freeze({
+    latitudeRadians: result.latitudeRadians,
+    longitudeRadians: result.longitudeRadians,
+    ellipsoidalHeight: result.ellipsoidalHeight,
   });
 }
 
@@ -301,7 +381,7 @@ export function createLocalFrame(options: LocalFrameOptions): LocalFrame {
   ellipsoidTerms(ellipsoid);
   const originEcef = toEcef(origin, ellipsoid);
   const originVector = ecefVector(originEcef);
-  const rotation = ecefToEnuRotationRadians(latitude, longitude);
+  const rotation = ecefToEnuRotationFromRadians(latitude, longitude);
   const inverseRotation = transposeMatrix3(rotation);
 
   const toFrameEcef = (position: LocalEnuPosition): EcefPosition => {

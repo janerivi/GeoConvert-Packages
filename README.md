@@ -19,7 +19,7 @@ Pin the release archive in `package.json`:
 ```json
 {
   "dependencies": {
-    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.2/placeframe-geoconvert-0.1.0-alpha.2.tgz"
+    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.3/placeframe-geoconvert-0.1.0-alpha.3.tgz"
   }
 }
 ```

@@ -6,9 +6,12 @@ import {
   GeoPoint,
   WGS84_ELLIPSOID,
   createLocalFrame,
+  ecefToEnuRotationRadians,
   fromEcef,
   fromEcefDetailed,
+  fromEcefRadiansDetailed,
   toEcef,
+  toEcefRadians,
 } from "../dist/index.js";
 
 const origin = {
@@ -73,6 +76,24 @@ describe("friendly geodesy API", () => {
     assert.ok(inverse.iterations > 0);
     assert.equal(inverse.toleranceRadians, 1e-13);
     close(inverse.latitude, origin.latitude, 1e-11);
+  });
+
+  it("preserves canonical radian inputs without a degrees round trip", () => {
+    const source = {
+      latitudeRadians: (40.77 * Math.PI) / 180,
+      longitudeRadians: (-73.97 * Math.PI) / 180,
+      ellipsoidalHeight: -12.5,
+    };
+    const ecef = toEcefRadians(source);
+    const inverse = fromEcefRadiansDetailed(ecef);
+    close(inverse.latitudeRadians, source.latitudeRadians, 2e-13);
+    close(inverse.longitudeRadians, source.longitudeRadians, 2e-13);
+    close(inverse.ellipsoidalHeight, source.ellipsoidalHeight, 2e-6);
+    const rotation = ecefToEnuRotationRadians(
+      source.latitudeRadians,
+      source.longitudeRadians,
+    );
+    close(Math.hypot(rotation[6], rotation[7], rotation[8]), 1, 2e-15);
   });
 
   it("supports familiar static constructors and convenience methods", () => {

@@ -19,7 +19,7 @@ Pin the release archive in `package.json`:
 ```json
 {
   "dependencies": {
-    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.3/placeframe-geoconvert-0.1.0-alpha.3.tgz"
+    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.4/placeframe-geoconvert-0.1.0-alpha.4.tgz"
   }
 }
 ```
@@ -55,5 +55,10 @@ Every language provides concise latitude/longitude/height, ECEF and ENU value
 types, a `GeoPoint`, a reusable local frame, forward/reverse conversions, and a
 generic local-pose/GeoPose pair. See each package README for its idiomatic
 spelling and the complete Manhattan example.
+
+Round trips are evaluated with declared tolerances, not raw equality. Iterative
+inverses, CRS operations and different language math runtimes can produce
+different final floating-point bits. Choose one pinned canonical producer and
+explicit rounding/canonical serialization before hashing numerical artifacts.
 
 Released under the Apache License 2.0.

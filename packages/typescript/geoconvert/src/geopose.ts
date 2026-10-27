@@ -1,4 +1,9 @@
-import { createLocalFrame, fromEcef, transposeMatrix3 } from "./geodesy.js";
+import {
+  createLocalFrame,
+  createLocalFrameRadians,
+  fromEcefRadians,
+  transposeMatrix3,
+} from "./geodesy.js";
 import type {
   GeodeticPosition,
   LocalEnuPosition,
@@ -173,11 +178,16 @@ export function localPoseToGeoPoseBasicQuaternion(
 ): BasicQuaternionGeoPose {
   const canonicalOrientation = canonicalizeUnitQuaternion(pose.orientationXyzw);
   const poseEcef = projectFrame.toEcef(pose.position);
-  const geodetic = fromEcef(poseEcef, {
+  const geodeticRadians = fromEcefRadians(poseEcef, {
     ellipsoid: projectFrame.ellipsoid,
   });
-  const localPoseFrame = createLocalFrame({
-    origin: geodetic,
+  const geodetic = {
+    latitude: (geodeticRadians.latitudeRadians * 180) / Math.PI,
+    longitude: (geodeticRadians.longitudeRadians * 180) / Math.PI,
+    ellipsoidalHeight: geodeticRadians.ellipsoidalHeight,
+  };
+  const localPoseFrame = createLocalFrameRadians({
+    origin: geodeticRadians,
     ellipsoid: projectFrame.ellipsoid,
   });
   const rotationPoseEnuCamera = multiplyMatrix3(

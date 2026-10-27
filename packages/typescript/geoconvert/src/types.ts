@@ -79,6 +79,13 @@ export interface LocalFrameOptions {
   readonly ellipsoid?: Ellipsoid;
 }
 
+/** Advanced local-frame input for byte-compatible canonical radian contracts. */
+export interface LocalFrameRadiansOptions {
+  readonly id?: string;
+  readonly origin: GeodeticRadiansPosition;
+  readonly ellipsoid?: Ellipsoid;
+}
+
 export interface LocalFrame {
   readonly id: string | undefined;
   readonly origin: GeodeticPosition;

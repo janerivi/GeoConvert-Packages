@@ -6,6 +6,7 @@ export { GeoPoint } from "./geo-point.js";
 export {
   WGS84_ELLIPSOID,
   createLocalFrame,
+  createLocalFrameRadians,
   ecefToEnuRotation,
   ecefToEnuRotationRadians,
   fromEcef,
@@ -48,5 +49,6 @@ export type {
   LocalEnuPosition,
   LocalFrame,
   LocalFrameOptions,
+  LocalFrameRadiansOptions,
   Matrix3,
 } from "./types.js";

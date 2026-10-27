@@ -1,6 +1,6 @@
 {
   "name": "@placeframe/geoconvert",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Friendly, typed GeoConvert APIs for Node.js and TypeScript",
   "keywords": [
     "geospatial",

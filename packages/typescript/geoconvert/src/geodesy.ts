@@ -10,6 +10,7 @@ import type {
   LocalEnuPosition,
   LocalFrame,
   LocalFrameOptions,
+  LocalFrameRadiansOptions,
   Matrix3,
 } from "./types.js";
 
@@ -373,13 +374,15 @@ export function fromEcef(
   });
 }
 
-/** Create a reusable right-handed local east/north/ellipsoid-up frame. */
-export function createLocalFrame(options: LocalFrameOptions): LocalFrame {
-  const origin = Object.freeze({ ...options.origin });
-  const ellipsoid = Object.freeze(options.ellipsoid ?? WGS84_ELLIPSOID);
-  const [latitude, longitude] = geodeticRadians(origin);
+function createLocalFrameFromRadians(
+  id: string | undefined,
+  origin: GeodeticPosition,
+  radians: Vector3,
+  ellipsoid: Ellipsoid,
+): LocalFrame {
+  const [latitude, longitude] = radians;
   ellipsoidTerms(ellipsoid);
-  const originEcef = toEcef(origin, ellipsoid);
+  const originEcef = toEcefFromRadians(radians, ellipsoid);
   const originVector = ecefVector(originEcef);
   const rotation = ecefToEnuRotationFromRadians(latitude, longitude);
   const inverseRotation = transposeMatrix3(rotation);
@@ -404,7 +407,7 @@ export function createLocalFrame(options: LocalFrameOptions): LocalFrame {
   };
 
   return Object.freeze({
-    id: options.id,
+    id,
     origin,
     originEcef,
     ellipsoid,
@@ -416,4 +419,30 @@ export function createLocalFrame(options: LocalFrameOptions): LocalFrame {
     fromGeodetic: (position: GeodeticPosition) =>
       fromFrameEcef(toEcef(position, ellipsoid)),
   });
+}
+
+/** Create a reusable right-handed local east/north/ellipsoid-up frame. */
+export function createLocalFrame(options: LocalFrameOptions): LocalFrame {
+  const origin = Object.freeze({ ...options.origin });
+  const ellipsoid = Object.freeze(options.ellipsoid ?? WGS84_ELLIPSOID);
+  return createLocalFrameFromRadians(
+    options.id,
+    origin,
+    geodeticRadians(origin),
+    ellipsoid,
+  );
+}
+
+/** Advanced local frame that preserves a canonical radian origin exactly. */
+export function createLocalFrameRadians(
+  options: LocalFrameRadiansOptions,
+): LocalFrame {
+  const ellipsoid = Object.freeze(options.ellipsoid ?? WGS84_ELLIPSOID);
+  const radians = validatedRadianVector(options.origin);
+  const origin = Object.freeze({
+    latitude: (radians[0] * 180) / Math.PI,
+    longitude: (radians[1] * 180) / Math.PI,
+    ellipsoidalHeight: radians[2],
+  });
+  return createLocalFrameFromRadians(options.id, origin, radians, ellipsoid);
 }

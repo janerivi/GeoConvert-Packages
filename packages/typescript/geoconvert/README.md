@@ -16,7 +16,7 @@ Pin the release asset URL in `package.json`:
 ```json
 {
   "dependencies": {
-    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.3/placeframe-geoconvert-0.1.0-alpha.3.tgz"
+    "@placeframe/geoconvert": "https://github.com/janerivi/GeoConvert-Packages/releases/download/typescript-v0.1.0-alpha.4/placeframe-geoconvert-0.1.0-alpha.4.tgz"
   }
 }
 ```
@@ -115,8 +115,11 @@ is explicitly ellipsoidal; the API does not silently interpret it as elevation
 above mean sea level.
 
 Advanced adapters with canonical radian inputs can use `toEcefRadians`,
-`fromEcefRadiansDetailed` and `ecefToEnuRotationRadians` without a degrees
-round trip.
+`fromEcefRadiansDetailed`, `ecefToEnuRotationRadians` and
+`createLocalFrameRadians` without a degrees round trip.
+
+Round trips are tolerance-based, not an equality promise. Iterative inverses
+and different language runtimes can vary in their last floating-point bits.
 
 ## Authoritative CRS conversion from Node.js
 
